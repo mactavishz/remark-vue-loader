@@ -1,18 +1,15 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>
+      <a href="https://github.com/Mactaivsh/remark-vue-loader">remark-vue-loader</a> Examples
+    </h1>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 
 export default {
-  name: 'app',
-  components: {
-    HelloWorld
-  }
+  name: 'app'
 }
 </script>
 
