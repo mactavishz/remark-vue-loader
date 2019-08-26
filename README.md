@@ -2,9 +2,7 @@
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000)
 
-Use your markdown as vue components !
-
-> Handy markdown to vue component webpack loader
+Use your markdown as [Vue SFC](https://vue-loader.vuejs.org/spec.html) !
 
 ## Install
 
