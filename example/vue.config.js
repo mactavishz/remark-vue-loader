@@ -5,6 +5,9 @@ module.exports = {
     module: {
       rules: [{
         test: /\.md$/,
+        include: [
+          path.resolve(__dirname, './markdown')
+        ],
         use: [
           {
             loader: 'vue-loader'
