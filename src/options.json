@@ -1,0 +1,35 @@
+{
+  "additionalProperties": true,
+  "type": "object",
+  "properties": {
+    "context": {
+      "type": "string"
+    },
+    "cache": {
+      "type": "boolean"
+    },
+    "preprocess": {
+      "instanceof": "Function"
+    },
+    "aftertransform": {
+      "instanceof": "Function"
+    },
+    "postprocess": {
+      "instanceof": "Function"
+    },
+    "components": {
+      "description": "components which should be resolved in markdown",
+      "anyOf": [
+        { "type": "object" },
+        { "type": "array" }
+      ]
+    },
+    "transformers": {
+      "description": "unified (remark) transformers to apply on mdast",
+      "anyOf": [
+        { "type": "array" },
+        { "instanceof": "Function" }
+      ]
+    }
+  }
+}
