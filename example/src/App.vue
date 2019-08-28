@@ -3,19 +3,56 @@
     <h1 class="example-header">
       <a href="https://github.com/Mactaivsh/remark-vue-loader">remark-vue-loader</a> Examples
     </h1>
-    <normal />
+    <ul
+      v-show="!currentDemoComp"
+      class="example-list">
+      <li
+        v-for="demo in demoList"
+        :key="demo.name">
+        <a href="javascript:void(0);" @click="showDemo(demo)">{{ demo.name }}</a>
+      </li>
+    </ul>
+    <a
+      v-show="currentDemoComp"
+      href="javascript:void(0);"
+      class="example-back"
+      @click="hideDemo">🔙 Back To List</a>
+    <component v-if="currentDemoComp" :is="currentDemoComp"></component>
   </div>
 </template>
 
 <script>
 
-import Normal from '../markdown/normal.md'
+import dataset from '../data.json'
 
 export default {
   name: 'app',
 
-  components: {
-    Normal
+  data () {
+    return {
+      currentDemoComp: null
+    }
+  },
+
+  computed: {
+    demoList () {
+      return dataset.map(item => {
+        return {
+          ...item,
+          component: () => import(`../markdown/${item.filename}`)
+        }
+      })
+    }
+  },
+
+  methods: {
+    showDemo (demo) {
+      this.currentDemoComp = demo.component
+    },
+
+    hideDemo () {
+      this.currentDemoComp = null
+    }
   }
 }
 </script>
@@ -33,6 +70,15 @@ export default {
 .example-header {
   text-align: center;
   margin-bottom: 2em;
+}
+
+.example-list,
+.example-back {
+  font-size: 1.2em;
+}
+
+.example-list > li {
+  margin: .5em 0;
 }
 
 p img {

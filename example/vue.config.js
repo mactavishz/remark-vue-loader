@@ -14,8 +14,20 @@ module.exports = {
           },
           {
             loader: path.resolve(__dirname, '../index.js'),
-            // TODO: add options
-            options: {}
+            options: {
+              cache: false,
+              components: [
+                './src/components/*.vue'
+              ],
+              // There's another way:
+              // components: {
+              //   'MyCustomComp': './src/components/MyCustomComp.vue'
+              // },
+              transformers: [],
+              preprocess (sourcem, api) {},
+              processing (ast, api) {},
+              postprocess (sfc, api) {}
+            }
           }
         ]
       }]

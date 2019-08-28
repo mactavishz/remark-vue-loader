@@ -1,14 +1,10 @@
 [
   {
     "name": "Normal Markdown",
-    "source": "./markdown/normal.md"
-  },
-  {
-    "name": "Markdown With Vue SFC container",
-    "source": "./markdown/container.md"
+    "filename": "normal.md"
   },
   {
     "name": "Markdown With Registered Vue component",
-    "source": "./markdown/registered.md"
+    "filename": "registered.md"
   }
 ]
