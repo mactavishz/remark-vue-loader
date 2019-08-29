@@ -6,8 +6,6 @@ const codegen = require('@babel/generator').default
 const t = require('@babel/types')
 const template = require('@babel/template').default
 const Case = require('case')
-const fs = require('fs')
-const path = require('path')
 
 class SFCParser {
   constructor ({
@@ -27,15 +25,18 @@ class SFCParser {
     this.source = source
     this.componentName = Case.pascal(componentName)
     this.extractedImportDeclarations = []
+    this.componentOptions = null
     this.componentDeclaration = null
     this.componentAstFactory = template(`
-    const %%componentName%% = (function() {
-      %%declarations%%\n
-      return {
-        render,
-        staticRenderFns
-      }
-    })();
+      const %%componentName%% = (function() {
+        %%declarations%%\n
+        const componentOptions = %%options%%\n
+        return {
+          ...componentOptions,
+          render,
+          staticRenderFns
+        }
+      })();
     `)
     this.babelParserOptions = Object.assign({}, defaultOptions, parserOptions)
   }
@@ -52,11 +53,24 @@ class SFCParser {
   }
 
   parseScriptBlock () {
-    // TODO:
-    // extract import statements
-    // get component object properties
+    const componentScriptBlockVisitor = {
+      ImportDeclaration: path => {
+        if (Array.isArray(path.node.leadingComments) && path.node.leadingComments.length > 0) {
+          delete path.node.leadingComments
+        }
+        this.extractedImportDeclarations.push(path.node)
+        path.remove()
+        return
+      },
+      ExportDefaultDeclaration: path => {
+        if (t.isObjectExpression(path.node.declaration))
+          this.componentOptions = path.node.declaration
+          path.stop()
+        }
+    }
     this.scriptBlock.ast = babelParser.parse(this.scriptBlock.content, this.babelParserOptions)
-    fs.writeFileSync(path.resolve(__dirname, '../test/scriptAst.json'), JSON.stringify(this.scriptBlock.ast, null, '  '), 'utf8')
+    // get component options object
+    traverse(this.scriptBlock.ast, componentScriptBlockVisitor)
   }
 
   parseStyleBlocks () {
@@ -70,10 +84,11 @@ class SFCParser {
     this.templateBlock.code = templateCompileResult.code
     this.templateBlock.ast = babelParser.parse(templateCompileResult.code, this.babelParserOptions)
     this.componentDeclaration = this.componentAstFactory({
+      options: this.componentOptions,
       declarations: this.templateBlock.ast.program.body.slice(),
       componentName: t.identifier(this.componentName)
     })
-    console.log(codegen(this.componentDeclaration))
+    // console.log(codegen(this.componentDeclaration).code)
   }
 
   parse() {
