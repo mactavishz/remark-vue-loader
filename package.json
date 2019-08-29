@@ -8,6 +8,11 @@
     "example:serve": "yarn --cwd ./example run serve --port=8088",
     "audit": "yarn audit"
   },
+  "files": [
+    "src",
+    "templates",
+    "index.js"
+  ],
   "dependencies": {
     "@babel/generator": "^7.5.5",
     "@babel/parser": "^7.5.5",
