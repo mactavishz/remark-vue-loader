@@ -9,6 +9,11 @@
     "audit": "yarn audit"
   },
   "dependencies": {
+    "@babel/generator": "^7.5.5",
+    "@babel/parser": "^7.5.5",
+    "@babel/template": "^7.4.4",
+    "@babel/traverse": "^7.5.5",
+    "@babel/types": "^7.5.5",
     "@vue/component-compiler-utils": "^3.0.0",
     "case": "^1.6.2",
     "globby": "^10.0.1",
