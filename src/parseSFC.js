@@ -2,8 +2,8 @@ const compiler = require('vue-template-compiler')
 const { parse: parseSFC, compileTemplate } = require('@vue/component-compiler-utils')
 const babelParser = require('@babel/parser')
 const traverse = require('@babel/traverse').default
-const codegen = require('@babel/generator').default
 const t = require('@babel/types')
+// const codegen = require('@babel/generator').default
 const template = require('@babel/template').default
 const Case = require('case')
 
@@ -29,8 +29,8 @@ class SFCParser {
     this.componentDeclaration = null
     this.componentAstFactory = template(`
       const %%componentName%% = (function() {
-        %%declarations%%\n
-        const componentOptions = %%options%%\n
+        %%renderFnsAndOtherStatements%%\n
+        const componentOptions = %%componentOptions%%\n
         return {
           ...componentOptions,
           render,
@@ -53,6 +53,7 @@ class SFCParser {
   }
 
   parseScriptBlock () {
+    // keep whats left between export default and import
     const componentScriptBlockVisitor = {
       ImportDeclaration: path => {
         if (Array.isArray(path.node.leadingComments) && path.node.leadingComments.length > 0) {
@@ -63,17 +64,23 @@ class SFCParser {
         return
       },
       ExportDefaultDeclaration: path => {
-        if (t.isObjectExpression(path.node.declaration))
-          this.componentOptions = path.node.declaration
-          path.stop()
-        }
+        // consider export default was wrapper with function like 'Object.assign'
+        this.componentOptions = path.node.declaration
+        path.remove()
+        return
+      }
     }
     this.scriptBlock.ast = babelParser.parse(this.scriptBlock.content, this.babelParserOptions)
     // get component options object
     traverse(this.scriptBlock.ast, componentScriptBlockVisitor)
   }
 
-  parseStyleBlocks () {
+  verifyStyleBlocks () {
+    this.styleBlocks.forEach(style => {
+      if (style.module || style.scoped) {
+        throw new TypeError('scoped style and css module is not supported')
+      }
+    })
   }
 
   parseTemplateBlock () {
@@ -84,8 +91,8 @@ class SFCParser {
     this.templateBlock.code = templateCompileResult.code
     this.templateBlock.ast = babelParser.parse(templateCompileResult.code, this.babelParserOptions)
     this.componentDeclaration = this.componentAstFactory({
-      options: this.componentOptions,
-      declarations: this.templateBlock.ast.program.body.slice(),
+      componentOptions: this.componentOptions,
+      renderFnsAndOtherStatements: [].concat(this.templateBlock.ast.program.body.slice(), this.scriptBlock.ast.program.body.slice()),
       componentName: t.identifier(this.componentName)
     })
     // console.log(codegen(this.componentDeclaration).code)
@@ -95,6 +102,12 @@ class SFCParser {
     this.parseSFCToBlocks()
     this.parseScriptBlock()
     this.parseTemplateBlock()
+    this.verifyStyleBlocks()
+    return {
+      componentName: this.componentName,
+      imports: this.extractedImportDeclarations,
+      styles: this.styleBlocks
+    }
   }
 }
 
