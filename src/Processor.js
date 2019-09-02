@@ -17,13 +17,20 @@ class Processor {
     this.source = source
     this.loader = loader
     this.options = options
-    this.rootContext = this.options.context
+    this.baseContext = this.options.context
     // markdown ast
     this.ast = null
     this.templates = null
     this.childComponents = []
-    this.hooks = ['preprocess', 'aftertransform', 'postprocess']
+    this.hooks = ['preprocess', 'beforetransform', 'aftertransform', 'postprocess']
     this.hooksApi = new HooksAPI(this)
+    this.transformers = this.options.transformers.map(fn => {
+      return {
+        type: 'Normal',
+        data: null,
+        handler: fn
+      }
+    })
     this.code = null
     this.init()
   }
@@ -55,7 +62,7 @@ class Processor {
       }
     }
 
-    if (!path.isAbsolute(this.rootContext)) {
+    if (!path.isAbsolute(this.baseContext)) {
       throw new TypeError(`loader options.context must be an absolute path`)
     }
     // resolve components from loader options.components
@@ -104,13 +111,20 @@ class Processor {
       .use(markdownParser)
       .parse(this.source)
     this.ast = compactNodes(this.ast)
-      // console.log(inspectAST(this.ast))
+    // console.log(inspectAST(this.ast))
   }
 
   /**
    * transform markdown AST
    */
   async transform () {
+    await this.callHook('beforetransform', this.ast, this.hooksApi)
+    for (let config of this.transformers) {
+      const newAst = await config.handler.apply(null, [this.ast, config.data])
+      if (!newAst) throw new TypeError('transform function must return Markdown Abstract Syntax Tree format, see https://github.com/syntax-tree/mdast')
+      this.ast = newAst
+    }
+    await this.callHook('aftertransform', this.ast, this.hooksApi)
   }
 
   /**
@@ -118,11 +132,11 @@ class Processor {
    * @param {*} components
    */
   resolveComponents (components) {
-    let result = []
+    const result = []
     // handle options for: [ './src/**/*.vue' ]
     if (Array.isArray(components)) {
       for (let globPath of components) {
-        if (!path.isAbsolute(globPath)) globPath = path.posix.join(this.rootContext, globPath)
+        if (!path.isAbsolute(globPath)) globPath = path.posix.join(this.baseContext, globPath)
         const componentFiles = globby.sync(globPath)
         componentFiles.forEach(file => {
           let name = path.basename(file, '.vue') || path.basename(file, '.js')
@@ -144,21 +158,28 @@ class Processor {
     } else if (typeof components === 'object') {
       const componentNames = Object.keys(components)
       componentNames.forEach(name => {
-        name = name.replace(/\s/, '')
+        name = Case.pascal(name.replace(/\s/, ''))
         let file = components[name]
-        if (!path.isAbsolute(file)) file = path.posix.join(this.rootContext, globPath)
+        if (!path.isAbsolute(file)) file = path.posix.join(this.baseContext, file)
         if (!fs.existsSync(file)) return
         const relativePath = path.relative(this.loader.context, file)
-        const importName = Case.pascal(name)
         result.push({
           name,
-          importName,
-          importStatement: `import ${importName} from '${relativePath}'`
+          importName: name,
+          importStatement: `import ${name} from '${relativePath}'`
         })
       })
     }
 
     return result
+  }
+
+  injectTransformer (type, data, handler) {
+    this.transformers.unshift({
+      type,
+      data,
+      handler
+    })
   }
 
 
@@ -188,7 +209,8 @@ class Processor {
             template: templateStr,
           })
           // console.log(result)
-          resolve(result)
+          this.code = result
+          resolve()
         })
     })
   }
@@ -196,7 +218,8 @@ class Processor {
   async run() {
     await this.parse()
     await this.transform()
-    this.code = await this.compile()
+    await this.compile()
+    await this.callHook('postprocess', this.code, this.hooksApi)
   }
 }
 

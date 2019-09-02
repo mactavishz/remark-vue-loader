@@ -3,18 +3,27 @@
   "type": "object",
   "properties": {
     "context": {
+      "description": "base path for resolving components and watch files",
       "type": "string"
     },
     "cache": {
+      "description": "whether loader result is cacheable",
       "type": "boolean"
     },
     "preprocess": {
+      "description": "hook function to be executed before parsing markdown into an ast",
+      "instanceof": "Function"
+    },
+    "beforetransform": {
+      "description": "hook function to be executed before applying transformers to markdown ast",
       "instanceof": "Function"
     },
     "aftertransform": {
+      "description": "hook function to be executed after transformers applied to markdown ast",
       "instanceof": "Function"
     },
     "postprocess": {
+      "description": "hook function to be executed when markdown transformed into a vue single file component",
       "instanceof": "Function"
     },
     "components": {
@@ -30,6 +39,10 @@
         { "type": "array" },
         { "instanceof": "Function" }
       ]
+    },
+    "watchFiles": {
+      "description": "files which should be watched and trigger hot reload",
+      "instanceof": "Array"
     }
   }
 }

@@ -10,8 +10,10 @@ module.exports = async function RemarkVueLoader (source, map, meta) {
     cache: true,
     components: [],
     transformers: [],
-    preprocess (sourcem, api) {},
-    processing (ast, api) {},
+    watchFiles: [],
+    preprocess (source, api) {},
+    beforetransform (ast, api) {},
+    aftertransform (ast, api) {},
     postprocess (sfc, api) {}
   }
 
@@ -34,8 +36,7 @@ module.exports = async function RemarkVueLoader (source, map, meta) {
 
   try {
     await processor.run()
-    // logger.log(processor.result)
-    callback(null, processor.result, map, meta)
+    callback(null, processor.code, map, meta)
   } catch (err) {
     const error = typeof err === 'string' ? new Error(err) : err
     callback(error, source)

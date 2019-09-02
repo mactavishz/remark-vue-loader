@@ -3,20 +3,6 @@ class HooksAPI {
     this.processor = processor
   }
 
-  /**
-   * add a file as dependency of the loader result, to make external dependencies watchable
-   * @param {String} file filepath
-   */
-  addDependency (file) {
-  }
-
-  /**
-   * add a directory as dependency of the loader, to make external dependencies watchable
-   * @param {*} directory directory path
-   */
-  addContextDependency (directory) {
-  }
-
   addComponent () {
   }
 
@@ -30,7 +16,8 @@ class HooksAPI {
     * @param {String} name
     * @param {Function} handler handler to handle markdown ast
     */
-  addContainer (name, ast) {
+  addContainer (name, handler) {
+    this.processor.injectTransformer('ParseContainer', { name }, handler)
   }
 }
 
