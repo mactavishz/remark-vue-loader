@@ -1,8 +1,8 @@
 const compiler = require('vue-template-compiler')
 const { parse: parseSFC, compileTemplate } = require('@vue/component-compiler-utils')
 const babelParser = require('@babel/parser')
-const traverse = require('@babel/traverse').default
-const t = require('@babel/types')
+const babelTraverse = require('@babel/traverse').default
+const babelTypes = require('@babel/types')
 // const codegen = require('@babel/generator').default
 const template = require('@babel/template').default
 const Case = require('case')
@@ -72,7 +72,7 @@ class SFCParser {
     }
     this.scriptBlock.ast = babelParser.parse(this.scriptBlock.content, this.babelParserOptions)
     // get component options object
-    traverse(this.scriptBlock.ast, componentScriptBlockVisitor)
+    babelTraverse(this.scriptBlock.ast, componentScriptBlockVisitor)
   }
 
   verifyStyleBlocks () {
@@ -93,9 +93,8 @@ class SFCParser {
     this.componentDeclaration = this.componentAstFactory({
       componentOptions: this.componentOptions,
       renderFnsAndOtherStatements: [].concat(this.templateBlock.ast.program.body.slice(), this.scriptBlock.ast.program.body.slice()),
-      componentName: t.identifier(this.componentName)
+      componentName: babelTypes.identifier(this.componentName)
     })
-    // console.log(codegen(this.componentDeclaration).code)
   }
 
   parse() {
@@ -105,6 +104,7 @@ class SFCParser {
     this.verifyStyleBlocks()
     return {
       componentName: this.componentName,
+      componentDeclaration: this.componentDeclaration,
       imports: this.extractedImportDeclarations,
       styles: this.styleBlocks
     }
