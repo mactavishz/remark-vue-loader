@@ -9,19 +9,36 @@ const compactNodes = require('mdast-util-compact')
 const Handlebars = require('handlebars')
 const HooksAPI = require('./API')
 const globby = require('globby')
+const babelTemplate = require('@babel/template').default
+const babelTypes = require('@babel/types')
+const babelCodegen = require('@babel/generator').default
 const Case = require('case')
 
-
+/**
+ * @description Processor that transform markdown source text into a standard Vue SFC source code
+ * @class Processor
+ */
 class Processor {
+  /**
+   * Creates an instance of Processor.
+   * @param {object} [{ source, loader, options }={}] options
+   * @memberof Processor
+   */
   constructor ({ source, loader, options } = {}) {
     this.source = source
     this.loader = loader
     this.options = options
     this.baseContext = this.options.context
     // markdown ast
-    this.ast = null
+    this.mdast = null
     this.templates = null
-    this.childComponents = []
+    this.scriptBlockAstFactory = babelTemplate(`
+      %%importStatements%%
+      export default {
+        components: %%componentsObject%%
+      }
+    `)
+    this.resolvedComponents = []
     this.hooks = ['preprocess', 'beforetransform', 'aftertransform', 'postprocess']
     this.hooksApi = new HooksAPI(this)
     this.transformers = this.options.transformers.map(fn => {
@@ -31,7 +48,8 @@ class Processor {
         handler: fn
       }
     })
-    this.code = null
+    // compiled Vue SFC code
+    this.resultCode = null
     this.init()
   }
 
@@ -66,39 +84,33 @@ class Processor {
       throw new TypeError(`loader options.context must be an absolute path`)
     }
     // resolve components from loader options.components
-    this.childComponents = this.resolveComponents(this.options.components)
+    this.resolvedComponents = this.resolveComponents(this.options.components)
   }
 
   /**
-   * Generate import statements for final Vue SFC script block
+   * @description generate script block code for Vue SFC
+   * @memberof Processor
    */
-  genImportStatements () {
-    const statements = []
-    // TODO: refactor using babel
-    if (this.childComponents.length > 0) {
-      this.childComponents.forEach((comp, index) => {
-        let importStr = comp.importStatement
-        if (index > this.childComponents.length - 1) importStr += '\n'
-        statements.push(importStr)
-      })
-    }
-    return statements
-  }
+  genScriptBlockCode () {
+    if (!this.resolvedComponents.length) return
+    const importStatements = []
+    this.resolvedComponents.forEach(config => {
+      importStatements.push(config.importStatement)
+    })
+    const scriptBlockAst = this.scriptBlockAstFactory({
+      importStatements,
+      componentsObject: babelTypes.objectExpression([
+        ...this.resolvedComponents.map(config => {
+          return babelTypes.objectProperty(config.ImportDefaultSpecifier, config.ImportDefaultSpecifier)
+        })
+      ])
+    })
 
-  /**
-   * Generate component defination for final Vue component's child component
-   */
-  getComponentDefs () {
-    const defs = []
-    // TODO: refactor using babel
-    if (this.childComponents.length > 0) {
-      this.childComponents.forEach((comp, index) => {
-        let defStr = `'${comp.name}': ${comp.importName}`
-        if (index < this.childComponents.length - 1) defStr += `,\n`
-        defs.push(defStr)
-      })
-    }
-    return defs
+    const { code } = babelCodegen({
+      type: 'Program',
+      body: scriptBlockAst
+    })
+    return code
   }
 
   /**
@@ -107,24 +119,24 @@ class Processor {
    */
   async parse () {
     await this.callHook('preprocess', this.source, this.hooksApi)
-    this.ast = unified()
+    this.mdast = unified()
       .use(markdownParser)
       .parse(this.source)
-    this.ast = compactNodes(this.ast)
-    // console.log(inspectAST(this.ast))
+    this.mdast = compactNodes(this.mdast)
+    // console.log(inspectAST(this.mdast))
   }
 
   /**
    * transform markdown AST
    */
   async transform () {
-    await this.callHook('beforetransform', this.ast, this.hooksApi)
+    await this.callHook('beforetransform', this.mdast, this.hooksApi)
     for (let config of this.transformers) {
-      const newAst = await config.handler.apply(null, [this.ast, config.data])
+      const newAst = await config.handler.apply(null, [this.mdast, config.data])
       if (!newAst) throw new TypeError('transform function must return Markdown Abstract Syntax Tree format, see https://github.com/syntax-tree/mdast')
-      this.ast = newAst
+      this.mdast = newAst
     }
-    await this.callHook('aftertransform', this.ast, this.hooksApi)
+    await this.callHook('aftertransform', this, this.hooksApi)
   }
 
   /**
@@ -145,9 +157,8 @@ class Processor {
           // construct a relative path from the markdown file to resolved vue component
           const relativePath = path.relative(this.loader.context, file)
           result.push({
-            name,
-            importName: name,
-            importStatement: `import ${name} from '${relativePath}'`
+            ImportDefaultSpecifier: babelTypes.identifier(name),
+            importStatement: babelTemplate.statement(`import ${name} from '${relativePath}'`)()
           })
           // make resolved components watchable to loader
           this.loader.addDependency(file)
@@ -164,10 +175,11 @@ class Processor {
         if (!fs.existsSync(file)) return
         const relativePath = path.relative(this.loader.context, file)
         result.push({
-          name,
-          importName: name,
-          importStatement: `import ${name} from '${relativePath}'`
+          ImportDefaultSpecifier: babelTypes.identifier(name),
+          importStatement: babelTemplate.statement(`import ${name} from '${relativePath}'`)()
         })
+        // make resolved components watchable to loader
+        this.loader.addDependency(file)
       })
     }
 
@@ -182,9 +194,10 @@ class Processor {
     })
   }
 
-
   /**
-   * compile markdown AST to Vue SFC
+   * @description compile markdown AST to Vue SFC
+   * @returns {promise} promise that resolve with Vue SFC code or reject with error
+   * @memberof Processor
    */
   async compile () {
     return new Promise((resolve, reject) => {
@@ -192,7 +205,7 @@ class Processor {
         .use(mdastToHast, {
           allowDangerousHTML: true
         })
-        .run(this.ast, (err, newAst) => {
+        .run(this.mdast, (err, newAst) => {
           if (err) reject(err)
           // console.log(inspectAST(newAst))
           const templateStr = unified()
@@ -202,24 +215,26 @@ class Processor {
             })
             .stringify(newAst)
           const result = this.templates.SFC.render({
-            imports: this.genImportStatements().join(''),
-            components: `{
-              ${this.getComponentDefs().join('')}
-            }`,
+            script: this.genScriptBlockCode(),
             template: templateStr,
           })
           // console.log(result)
-          this.code = result
-          resolve()
+          resolve(result)
         })
     })
   }
 
+  /**
+   * @description Run Processor, go through parse, transform and compile phase
+   * @returns {promise} promise that resolve with Vue SFC code or reject with error
+   * @memberof Processor
+   */
   async run() {
     await this.parse()
     await this.transform()
-    await this.compile()
-    await this.callHook('postprocess', this.code, this.hooksApi)
+    this.resultCode = await this.compile()
+    await this.callHook('postprocess', this.resultCode, this.hooksApi)
+    return this.resultCode
   }
 }
 
