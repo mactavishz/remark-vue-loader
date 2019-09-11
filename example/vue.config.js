@@ -1,5 +1,8 @@
 const path = require('path')
 
+const testTransformer = (ast, data) => {
+  return ast
+}
 module.exports = {
   configureWebpack: {
     module: {
@@ -16,16 +19,20 @@ module.exports = {
             loader: path.resolve(__dirname, '../index.js'),
             options: {
               cache: false,
-              components: [
-                './src/components/*.vue'
-              ],
+              // components: [
+              //   './src/components/*.vue'
+              // ],
               // There's another way:
-              // components: {
-              //   'MyCustomComp': './src/components/MyCustomComp.vue'
-              // },
-              transformers: [],
-              preprocess (sourcem, api) {},
-              processing (ast, api) {},
+              components: {
+                'MyCustomComp': './src/components/MyCustomComp.vue'
+              },
+              transformers: [
+                testTransformer
+              ],
+              watchFiles: [],
+              preprocess (source, api) {},
+              beforetransform (ast, api) {},
+              aftertransform (ast, api) {},
               postprocess (sfc, api) {}
             }
           }
