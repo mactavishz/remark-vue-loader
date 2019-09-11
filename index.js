@@ -35,8 +35,8 @@ module.exports = async function RemarkVueLoader (source, map, meta) {
   })
 
   try {
-    await processor.run()
-    callback(null, processor.code, map, meta)
+    const result = await processor.run()
+    callback(null, result, map, meta)
   } catch (err) {
     const error = typeof err === 'string' ? new Error(err) : err
     callback(error, source)
