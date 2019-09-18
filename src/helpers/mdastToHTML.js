@@ -1,0 +1,25 @@
+const unified = require('unified')
+const HTMLStringify = require('rehype-stringify')
+const mdastToHast = require('remark-rehype')
+
+async function mdastToHTML (mdast) {
+  return new Promise((resolve, reject) => {
+    unified()
+      .use(mdastToHast, {
+        allowDangerousHTML: true
+      })
+      .run(mdast, (err, newAst) => {
+        if (err) reject(err)
+        // console.log(inspectAST(newAst))
+        const html = unified()
+          .use(HTMLStringify, {
+            allowDangerousCharacters: true,
+            allowDangerousHTML: true
+          })
+          .stringify(newAst)
+        resolve(html)
+      })
+  })
+}
+
+module.exports = mdastToHTML
