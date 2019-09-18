@@ -3,8 +3,7 @@ const path = require('path')
 const unified = require('unified')
 const inspectAST = require('unist-util-inspect')
 const markdownParser = require('remark-parse')
-const HTMLStringify = require('rehype-stringify')
-const mdastToHast = require('remark-rehype')
+const assertMdast = require('mdast-util-assert')
 const compactNodes = require('mdast-util-compact')
 const Handlebars = require('handlebars')
 const HooksAPI = require('./API')
@@ -13,6 +12,8 @@ const babelTemplate = require('@babel/template').default
 const babelTypes = require('@babel/types')
 const babelCodegen = require('@babel/generator').default
 const Case = require('case')
+const { SFCContainerTransformer } = require('./internals')
+const mdastToHTML = require('./helpers/mdastToHTML')
 
 /**
  * @description Processor that transform markdown source text into a standard Vue SFC source code
@@ -41,10 +42,15 @@ class Processor {
     this.resolvedComponents = []
     this.hooks = ['preprocess', 'beforetransform', 'aftertransform', 'postprocess']
     this.hooksApi = new HooksAPI(this)
+    this.internalTransformers = [{
+      type: 'Internal',
+      options: {},
+      handler: SFCContainerTransformer
+    }]
     this.transformers = this.options.transformers.map(fn => {
       return {
         type: 'Normal',
-        data: null,
+        options: {},
         handler: fn
       }
     })
@@ -55,8 +61,8 @@ class Processor {
 
   /**
    * get hook function from loader options and eval it
-   * @param {*} name name of the hook
-   * @param  {...any} args arguments to pass to the hook function
+   * @param {string} name name of the hook
+   * @param  {array} args arguments to pass to the hook function
    */
   async callHook (name, ...args) {
     if (this.hooks.includes(name)) {
@@ -131,9 +137,13 @@ class Processor {
    */
   async transform () {
     await this.callHook('beforetransform', this.mdast, this.hooksApi)
-    for (let config of this.transformers) {
-      const newAst = await config.handler.apply(null, [this.mdast, config.data])
-      if (!newAst) throw new TypeError('transform function must return Markdown Abstract Syntax Tree format, see https://github.com/syntax-tree/mdast')
+    for (let config of [...this.internalTransformers, ...this.transformers]) {
+      const options = Object.assign({}, config.options, {
+        context: this.baseContext,
+        resourcePath: this.loader.resourcePath
+      })
+      const newAst = await config.handler.apply(null, [this.mdast, options])
+      assertMdast(newAst)
       this.mdast = newAst
     }
     await this.callHook('aftertransform', this, this.hooksApi)
@@ -186,11 +196,11 @@ class Processor {
     return result
   }
 
-  injectTransformer (type, data, handler) {
+  unshiftTransformer (type, options, handler) {
     this.transformers.unshift({
       type,
-      data,
-      handler
+      handler,
+      options
     })
   }
 
@@ -200,27 +210,10 @@ class Processor {
    * @memberof Processor
    */
   async compile () {
-    return new Promise((resolve, reject) => {
-      unified()
-        .use(mdastToHast, {
-          allowDangerousHTML: true
-        })
-        .run(this.mdast, (err, newAst) => {
-          if (err) reject(err)
-          // console.log(inspectAST(newAst))
-          const templateStr = unified()
-            .use(HTMLStringify, {
-              allowDangerousCharacters: true,
-              allowDangerousHTML: true
-            })
-            .stringify(newAst)
-          const result = this.templates.SFC.render({
-            script: this.genScriptBlockCode(),
-            template: templateStr,
-          })
-          // console.log(result)
-          resolve(result)
-        })
+    const html = await mdastToHTML(this.mdast)
+    return this.templates.SFC.render({
+      script: this.genScriptBlockCode(),
+      template: html,
     })
   }
 
