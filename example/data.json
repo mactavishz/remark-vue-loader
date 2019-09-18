@@ -6,5 +6,9 @@
   {
     "name": "Markdown With Registered Vue component",
     "filename": "registered.md"
+  },
+  {
+    "name": "Markdown With SFC container",
+    "filename": "container.md"
   }
 ]

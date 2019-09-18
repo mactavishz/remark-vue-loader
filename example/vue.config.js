@@ -1,6 +1,6 @@
 const path = require('path')
 
-const testTransformer = (ast, data) => {
+const testTransformer = (ast, options) => {
   return ast
 }
 module.exports = {
@@ -32,8 +32,8 @@ module.exports = {
               watchFiles: [],
               preprocess (source, api) {},
               beforetransform (ast, api) {},
-              aftertransform (ast, api) {},
-              postprocess (sfc, api) {}
+              aftertransform (ast) {},
+              postprocess (sfc) {}
             }
           }
         ]
