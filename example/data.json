@@ -10,5 +10,9 @@
   {
     "name": "Markdown With SFC container",
     "filename": "container.md"
+  },
+  {
+    "name": "Markdown With Custom Code Block",
+    "filename": "external-api.md"
   }
 ]

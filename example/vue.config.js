@@ -31,9 +31,21 @@ module.exports = {
               ],
               watchFiles: [],
               preprocess (source, api) {},
-              beforetransform (ast, api) {},
-              aftertransform (ast) {},
-              postprocess (sfc) {}
+              beforetransform (ast, api) {
+                api.addCodeBlock('uppercase', function (value, meta) {
+                  return {
+                    type: 'paragraph',
+                    children: [{
+                      type: 'text',
+                      value: String(value).toUpperCase()
+                    }]
+                  }
+                })
+              },
+              aftertransform (ast, api) {},
+              postprocess (sfc) {
+                console.log(sfc)
+              }
             }
           }
         ]
