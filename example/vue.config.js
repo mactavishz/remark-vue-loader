@@ -43,9 +43,7 @@ module.exports = {
                 })
               },
               aftertransform (ast, api) {},
-              postprocess (sfc) {
-                console.log(sfc)
-              }
+              postprocess (sfc) {}
             }
           }
         ]
