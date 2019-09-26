@@ -43,7 +43,7 @@ class SFCParser {
     // handle different cases in SFC, but SFC should at least contains a script tag or a template tag
     this.componentAstFactory = (hasTemplate = true, hasScript = true) => template(`
     const %%componentName%% = (function() {
-      %%otherStatements%%
+      %%afterImportDeclarations%%
       ${hasTemplate ? '%%renderFns%%\n' : ''}
       ${hasScript ? 'const componentOptions = %%componentOptions%%\n' : ''}
       return {
@@ -69,13 +69,13 @@ class SFCParser {
     // when SFC contains a template tag
     if (hasTemplate) {
       subsititutions.renderFns = this.templateBlock.ast.program.body.slice()
-      subsititutions.otherStatements = []
+      subsititutions.afterImportDeclarations = []
     }
 
     // when SFC contains a script tag
     if (hasScript) {
       subsititutions.componentOptions = this.componentOptions
-      subsititutions.otherStatements = this.scriptBlock.ast.program.body.slice()
+      subsititutions.afterImportDeclarations = this.scriptBlock.ast.program.body.slice()
     }
     this.componentDeclaration = this.componentAstFactory(hasTemplate, hasScript)(subsititutions)
   }
@@ -92,7 +92,7 @@ class SFCParser {
       needMap: false
     })
     if (!template && !script) {
-      throw new Error('At least provide a script block or a template block')
+      throw new Error(`At least provide a script block or a template block\nSource: ${this.source} \n`)
     }
     this.templateBlock = template
     this.scriptBlock = script
@@ -171,9 +171,9 @@ class SFCParser {
     this.genComponentDeclarationAst()
     this.verifyStyleBlocks()
     return {
-      componentName: this.componentName,
+      normalizedComponentName: this.componentName,
       componentDeclaration: this.componentDeclaration,
-      imports: this.extractedImportDeclarations,
+      importDeclarations: this.extractedImportDeclarations,
       styles: this.styleBlocks
     }
   }

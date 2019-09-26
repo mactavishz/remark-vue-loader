@@ -1,31 +1,28 @@
-const { root, html } = require('mdast-builder')
-const isNode = require('unist-util-is')
-const removeNode = require('unist-util-remove')
-const findContainers = require('./helpers/findContainers')
-const mdastToHTML = require('./helpers/mdastToHTML')
+const { html } = require('mdast-builder')
+const findCodeBlocks = require('./helpers/findCodeBlocks')
+const replaceNode = require('./helpers/replaceNode')
+const hash = require('./helpers/hash')
+const qs = require('querystring')
 
-async function SFCContainerTransformer (mdast, options) {
-  const containers = findContainers('SFC', mdast)
-  // console.log(`${options.resourcePath} has ${containers.length} containers`)
-  for (let container of containers) {
-    const { start, between, end } = container
-    let partialMdast = null
-    if (typeof between !== 'string') {
-      partialMdast = root([
-        ...between.filter(node => isNode(node, 'html'))
-      ])
-      const SFCStr = await mdastToHTML(partialMdast)
-      between.forEach(bnode => removeNode(mdast, node => isNode(node, bnode)))
-    }
-    removeNode(mdast, node => isNode(node, start))
-    removeNode(mdast, node => isNode(node, end))
+/**
+ * @description internal SFC
+ * @param {*} mdast
+ * @param {*} options
+ * @returns
+ */
+async function SFCCodeBlockTransformer (mdast, options) {
+  const { api } = options
+  const SFCCodeblocks = findCodeBlocks('SFC', mdast)
+  for (let block of SFCCodeblocks) {
+    let { value, meta } = block
+    meta = qs.parse(meta)
+    const componentName = meta.componentName || `SFC${hash(value)}`
+    const normalizedComponentName = api.addComponent(componentName, value)
+    replaceNode(mdast, block, html(`<${normalizedComponentName} />`))
   }
-  // if (options.resourcePath.endsWith('container.md')) {
-  //   console.dir(mdast, { depth: null })
-  // }
   return mdast
 }
 
 module.exports = {
-  SFCContainerTransformer
+  SFCCodeBlockTransformer
 }

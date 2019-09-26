@@ -2,6 +2,11 @@ const unified = require('unified')
 const HTMLStringify = require('rehype-stringify')
 const mdastToHast = require('remark-rehype')
 
+/**
+ * @description transform mdast to hast and stringify to html string
+ * @param {object} mdast markdown ast
+ * @returns
+ */
 async function mdastToHTML (mdast) {
   return new Promise((resolve, reject) => {
     unified()
