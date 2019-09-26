@@ -148,12 +148,6 @@ class Processor {
   }
 
   /**
-   * initializing processor:
-   * 1. init SFC handlebars templates
-   * 2. resolve components specified in loader options
-   */
-
-  /**
    * @description initializing processor
    * 1. init SFC handlebars templates
    * 2. resolve components specified in loader options - components
@@ -213,8 +207,9 @@ class Processor {
   }
 
   /**
-   * parse markdown to mdast (a markdown AST)
-   * @ref https://github.com/syntax-tree/mdast
+   * @description parse markdown to mdast (a markdown AST)
+   * @see https://github.com/syntax-tree/mdast
+   * @memberof Processor
    */
   async parse () {
     await this.callHook('preprocess', this.source, this.externalApi)
