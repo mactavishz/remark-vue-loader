@@ -35,15 +35,18 @@ class Processor {
     this.mdast = null
     this.frontmatter = {}
     this.templates = null
-    this.scriptBlockAstFactory = (componentName, frontmatter) => babelTemplate(`
-      %%importDeclarations%%
-      %%afterImportDeclarations%%
-      export default {
-        name: '${componentName}',
-        components: %%componentsObject%%,
-        frontmatter: JSON.parse('${frontmatter}')
-      }
-    `)
+    this.scriptBlockAstFactory = ({ componentName, frontmatter, source }) => {
+      return babelTemplate(`
+        %%importDeclarations%%
+        %%afterImportDeclarations%%
+        export default {
+          name: '${componentName}',
+          components: %%componentsObject%%,
+          frontmatter: JSON.parse('${frontmatter}'),
+          source: ${source}
+        }
+      `)
+    }
     this.importDeclarations = []
     this.afterImportDeclarations = []
     this.componentObjectProperties = []
@@ -185,7 +188,11 @@ class Processor {
   genScriptBlockCode () {
     const { componentName = `${Case.pascal(this.filename + hash(this.loader.resourcePath))}` } = this.frontmatter
     this.frontmatter.componentName = componentName
-    const scriptBlockAst = this.scriptBlockAstFactory(componentName, JSON.stringify(this.frontmatter))({
+    const scriptBlockAst = this.scriptBlockAstFactory({
+      componentName,
+      frontmatter: JSON.stringify(this.frontmatter),
+      source: this.source
+    })({
       importDeclarations: this.importDeclarations,
       componentsObject: babelTypes.objectExpression([
         ...this.componentObjectProperties
@@ -328,7 +335,7 @@ class Processor {
     await this.parse()
     await this.transform()
     this.resultCode = await this.compile()
-    await this.callHook('postprocess', this.resultCode)
+    this.resultCode = await this.callHook('postprocess', this.resultCode)
     return this.resultCode
   }
 }
