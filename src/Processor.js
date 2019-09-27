@@ -227,7 +227,7 @@ class Processor {
    * @memberof Processor
    */
   async parse () {
-    await this.callHook('preprocess', this.source, this.externalApi)
+    this.source = await this.callHook('preprocess', this.source, this.externalApi)
     this.mdast = unified()
       .use(markdownParser)
       .use(remarkFormatter, ['yaml'])
