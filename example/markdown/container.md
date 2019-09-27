@@ -2,6 +2,8 @@
 
 Remember to open your **[Vue devtools](https://github.com/vuejs/vue-devtools)** and check out the demo below:
 
+<p>frontmatter: {{ $options.frontmatter }}</p>
+
 ``` js
 console.log('This is a normal JavaScript code block')
 ```

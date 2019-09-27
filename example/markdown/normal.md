@@ -1,4 +1,10 @@
 
+## Normal Markdown
+
+Check out the demo below:
+
+<p>frontmatter: {{ $options.frontmatter }}</p>
+
 # h1 Heading 8-)
 ## h2 Heading
 ### h3 Heading
@@ -68,8 +74,8 @@ Ordered
 3. Integer molestie lorem at massa
 
 
-1. You can use sequential numbers...
-1. ...or keep all the numbers as `1.`
+4. You can use sequential numbers...
+5. ...or keep all the numbers as `1.`
 
 Start numbering with offset:
 
