@@ -30,7 +30,9 @@ module.exports = {
                 testTransformer
               ],
               watchFiles: [],
-              preprocess (source, api) {},
+              preprocess (source, api) {
+                return source
+              },
               beforetransform (ast, api) {
                 api.addCodeBlock('uppercase', function (value, meta) {
                   return {
@@ -43,7 +45,9 @@ module.exports = {
                 })
               },
               aftertransform (ast, api) {},
-              postprocess (sfc) {}
+              postprocess (sfc) {
+                return sfc
+              }
             }
           }
         ]
