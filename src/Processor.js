@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const unified = require('unified')
 const markdownParser = require('remark-parse')
+const remarkFormatter = require('remark-frontmatter')
 const assertMdast = require('mdast-util-assert')
 const Handlebars = require('handlebars')
 const ExternalAPI = require('./API')
@@ -12,7 +13,8 @@ const babelCodegen = require('@babel/generator').default
 const Case = require('case')
 const { SFCCodeBlockTransformer } = require('./internals')
 const mdastToHTML = require('./helpers/mdastToHTML')
-
+const findYamlFrontmatter = require('./helpers/findYamlFrontmatter')
+const hash = require('./helpers/hash')
 /**
  * @description Processor that transform markdown source text into a standard Vue SFC source code
  * @class Processor
@@ -28,14 +30,18 @@ class Processor {
     this.loader = loader
     this.options = options
     this.baseContext = this.options.context
+    this.filename = path.basename(this.loader.resourcePath, '.md')
     // markdown ast
     this.mdast = null
+    this.frontmatter = {}
     this.templates = null
-    this.scriptBlockAstFactory = babelTemplate(`
+    this.scriptBlockAstFactory = (componentName, frontmatter) => babelTemplate(`
       %%importDeclarations%%
       %%afterImportDeclarations%%
       export default {
-        components: %%componentsObject%%
+        name: '${componentName}',
+        components: %%componentsObject%%,
+        frontmatter: JSON.parse('${frontmatter}')
       }
     `)
     this.importDeclarations = []
@@ -177,7 +183,9 @@ class Processor {
    * @memberof Processor
    */
   genScriptBlockCode () {
-    const scriptBlockAst = this.scriptBlockAstFactory({
+    const { componentName = `${Case.pascal(this.filename + hash(this.loader.resourcePath))}` } = this.frontmatter
+    this.frontmatter.componentName = componentName
+    const scriptBlockAst = this.scriptBlockAstFactory(componentName, JSON.stringify(this.frontmatter))({
       importDeclarations: this.importDeclarations,
       componentsObject: babelTypes.objectExpression([
         ...this.componentObjectProperties
@@ -215,7 +223,10 @@ class Processor {
     await this.callHook('preprocess', this.source, this.externalApi)
     this.mdast = unified()
       .use(markdownParser)
+      .use(remarkFormatter, ['yaml'])
       .parse(this.source)
+    // find and parse frontmatter
+    this.frontmatter = findYamlFrontmatter(this.mdast)
   }
 
   /**
