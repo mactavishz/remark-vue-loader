@@ -5,7 +5,7 @@
   "author": "Mactavish <maczhanchao@yahoo.com>",
   "license": "MIT",
   "scripts": {
-    "example:serve": "yarn --cwd ./example run serve --port=8088",
+    "example:serve": "yarn --cwd ./example run serve",
     "audit": "yarn audit"
   },
   "files": [
