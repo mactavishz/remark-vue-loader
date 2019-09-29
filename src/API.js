@@ -48,12 +48,14 @@ class ExternalAPI {
   }
 
   /**
-   * @description add custom code block for markdown, will replace the specific block with new ast
+   * @description add custom code block for markdown, will replace the specific block with new ast, it internally adds a transformer function
    * @param {string} name custom code block name
    * @param {function} handler handler to transform markdown ast
    * @memberof ExternalAPI
    */
   addCodeBlock (name, handler) {
+    // add code blocks after ast transformation is meaningless
+    if (this.processor.currentHook === 'aftertransform') return
     const options = { name }
     this.processor.unshiftTransformer('parseCodeBlock', options, function findAndReplaceBlock (mdast) {
       const blocks = findCodeBlocks(name, mdast)
