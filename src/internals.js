@@ -1,7 +1,7 @@
 const { html } = require('mdast-builder')
 const findCodeBlocks = require('./helpers/findCodeBlocks')
 const replaceNode = require('./helpers/replaceNode')
-const hash = require('./helpers/hash')
+const hash = require('hash-sum')
 const qs = require('querystring')
 
 /**

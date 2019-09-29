@@ -14,7 +14,7 @@ const Case = require('case')
 const { SFCCodeBlockTransformer } = require('./internals')
 const mdastToHTML = require('./helpers/mdastToHTML')
 const findYamlFrontmatter = require('./helpers/findYamlFrontmatter')
-const hash = require('./helpers/hash')
+const hash = require('hash-sum')
 /**
  * @description Processor that transform markdown source text into a standard Vue SFC source code
  * @class Processor
