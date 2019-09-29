@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "example:serve": "yarn --cwd ./example run serve",
+    "test": "jest",
     "audit": "yarn audit"
   },
   "files": [
@@ -24,6 +25,7 @@
     "debug": "^4.1.1",
     "globby": "^10.0.1",
     "handlebars": "^4.1.2",
+    "hash-sum": "^2.0.0",
     "js-yaml": "^3.13.1",
     "loader-utils": "^1.2.3",
     "mdast-builder": "^1.1.1",
