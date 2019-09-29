@@ -11,13 +11,12 @@ module.exports = async function RemarkVueLoader (source, map, meta) {
     components: [],
     transformers: [],
     watchFiles: [],
-    preprocess (source, api) {},
-    beforetransform (ast, api) {},
-    aftertransform (ast, api) {},
-    postprocess (sfc, api) {}
+    preprocess: source => source,
+    beforetransform: (ast, api) => {},
+    aftertransform: (ast, api) => {},
+    postprocess: sfc => sfc
   }
 
-  const logger = this.getLogger() ? this.getLogger() : console
   const options = Object.assign({}, defaultOptions, loaderUtils.getOptions(this))
 
   validateOptions(optionSchema, options, {
