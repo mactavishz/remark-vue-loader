@@ -3,6 +3,7 @@ const path = require('path')
 const testTransformer = (ast, options) => {
   return ast
 }
+
 module.exports = {
   configureWebpack: {
     module: {
@@ -44,7 +45,8 @@ module.exports = {
                   }
                 })
               },
-              aftertransform (ast, api) {},
+              aftertransform (ast, api) {
+              },
               postprocess (sfc) {
                 return sfc
               }

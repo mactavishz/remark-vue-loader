@@ -1,4 +1,3 @@
-
 ## Normal Markdown
 
 Check out the demo below:

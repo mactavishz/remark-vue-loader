@@ -4,7 +4,7 @@
       <a href="https://github.com/Mactaivsh/remark-vue-loader">remark-vue-loader</a> Examples
     </h1>
     <ul
-      v-show="!currentDemoComp"
+      v-show="!currentDemo"
       class="example-list">
       <li
         v-for="demo in demoList"
@@ -13,11 +13,21 @@
       </li>
     </ul>
     <a
-      v-show="currentDemoComp"
+      v-show="currentDemo"
       href="javascript:void(0);"
       class="example-back"
       @click="hideDemo">🔙 Back To List</a>
-    <component v-if="currentDemoComp" :is="currentDemoComp"></component>
+      <section
+        v-if="currentDemo"
+        class="example-demo">
+        <code class="example-demo-code">
+          <pre>{{currentDemo.source}}</pre>
+        </code>
+        <component
+          class="example-demo-comp"
+          :is="currentDemo.component">
+        </component>
+      </section>
   </div>
 </template>
 
@@ -30,7 +40,7 @@ export default {
 
   data () {
     return {
-      currentDemoComp: null
+      currentDemo: null
     }
   },
 
@@ -39,7 +49,8 @@ export default {
       return dataset.map(item => {
         return {
           ...item,
-          component: () => import(`../markdown/${item.filename}`)
+          component: () => import(`../markdown/${item.filename}`),
+          source: require(`!!raw-loader!../markdown/${item.filename}`).default
         }
       })
     }
@@ -47,11 +58,11 @@ export default {
 
   methods: {
     showDemo (demo) {
-      this.currentDemoComp = demo.component
+      this.currentDemo = demo
     },
 
     hideDemo () {
-      this.currentDemoComp = null
+      this.currentDemo = null
     }
   }
 }
@@ -63,7 +74,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  max-width: 50vw;
+  max-width: 80vw;
   margin: 60px auto 0 auto;
 }
 
@@ -79,6 +90,27 @@ export default {
 
 .example-list > li {
   margin: .5em 0;
+}
+
+.example-demo {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 1.5em;
+}
+
+.example-comp {
+  flex-shrink: 0;
+  width: 50%;
+}
+
+.example-demo-code {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding: 1em;
+  margin-right: 1em;
+  background-color: blanchedalmond;
+  width: calc(50% - 1em);
+  overflow-x: auto;
 }
 
 p img {
