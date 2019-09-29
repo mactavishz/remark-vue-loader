@@ -42,8 +42,7 @@ class Processor {
         export default {
           name: '${componentName}',
           components: %%componentsObject%%,
-          frontmatter: JSON.parse('${frontmatter}'),
-          source: ${source}
+          frontmatter: JSON.parse('${frontmatter}')
         }
       `)
     }
@@ -52,6 +51,7 @@ class Processor {
     this.componentObjectProperties = []
     this.styleBlocks = []
     this.hooks = ['preprocess', 'beforetransform', 'aftertransform', 'postprocess']
+    this.currentHook = null
     this.externalApi = new ExternalAPI(this)
     this.internalTransformers = [{
       type: 'Internal',
@@ -150,6 +150,7 @@ class Processor {
    */
   async callHook (name, ...args) {
     if (this.hooks.includes(name)) {
+      this.currentHook = name
       const fn = this.options[name]
       const result = fn ? fn.apply(null, args) : Promise.resolve()
       return result
