@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --port=8088",
-    "prebuild": "yarn add ../",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^2.6.5",
     "lodash-es": "^4.17.15",
+    "remark-vue-loader": "../",
     "vue": "^2.6.10"
   },
   "devDependencies": {

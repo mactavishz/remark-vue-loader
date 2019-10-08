@@ -17,7 +17,7 @@ module.exports = {
             loader: 'vue-loader'
           },
           {
-            loader: path.resolve(__dirname, '../index.js'),
+            loader: 'remark-vue-loader',
             options: {
               cache: false,
               // components: [
