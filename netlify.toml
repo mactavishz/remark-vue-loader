@@ -6,6 +6,6 @@
 # “publish” is the directory to publish (relative to the root of your repo).
 
 [build]
-  base    = "."
-  command = "yarn && yarn example:build"
+  base    = "example"
+  command = "yarn build"
   publish = "example/dist"
