@@ -9,11 +9,13 @@ const mdastToHast = require('remark-rehype')
  */
 async function mdastToHTML (mdast) {
   return new Promise((resolve, reject) => {
-    unified()
+    try {
+      unified()
       .use(mdastToHast, {
         allowDangerousHTML: true
       })
       .run(mdast, (err, newAst) => {
+        /* istanbul ignore next */
         if (err) reject(err)
         const html = unified()
           .use(HTMLStringify, {
@@ -23,6 +25,9 @@ async function mdastToHTML (mdast) {
           .stringify(newAst)
         resolve(html)
       })
+    } catch (err) {
+      reject(err)
+    }
   })
 }
 
