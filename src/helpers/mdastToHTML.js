@@ -15,7 +15,6 @@ async function mdastToHTML (mdast) {
       })
       .run(mdast, (err, newAst) => {
         if (err) reject(err)
-        // console.log(inspectAST(newAst))
         const html = unified()
           .use(HTMLStringify, {
             allowDangerousCharacters: true,
