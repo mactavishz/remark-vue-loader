@@ -48,6 +48,15 @@ class ExternalAPI {
   }
 
   /**
+   * @description add dependency using webpack loader api
+   * @param {string} path dependecy file path
+   * @memberof ExternalAPI
+   */
+  addDependency (path) {
+    this.processor.loader.addDependency(path)
+  }
+
+  /**
    * @description add custom code block for markdown, will replace the specific block with new ast, it internally adds a transformer function
    * @param {string} name custom code block name
    * @param {function} handler handler to transform markdown ast
