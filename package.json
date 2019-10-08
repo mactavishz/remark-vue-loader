@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "example:serve": "yarn --cwd ./example run serve",
+    "example:build": "yarn --cwd ./example run build",
     "test": "jest",
     "audit": "yarn audit"
   },
