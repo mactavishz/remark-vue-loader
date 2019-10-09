@@ -3,45 +3,42 @@
   "type": "object",
   "properties": {
     "context": {
-      "description": "base path for resolving components and watch files",
+      "description": "Base path for resolving components and watch files",
       "type": "string"
     },
     "cache": {
-      "description": "whether loader result is cacheable",
+      "description": "Whether loader result is cacheable",
       "type": "boolean"
     },
     "preprocess": {
-      "description": "hook function to be executed before parsing markdown into an ast",
+      "description": "Hook function to be executed before parsing markdown into an ast",
       "instanceof": "Function"
     },
     "beforetransform": {
-      "description": "hook function to be executed before applying transformers to markdown ast",
+      "description": "Hook function to be executed before applying transformers to markdown ast",
       "instanceof": "Function"
     },
     "aftertransform": {
-      "description": "hook function to be executed after transformers applied to markdown ast",
+      "description": "Hook function to be executed after transformers applied to markdown ast",
       "instanceof": "Function"
     },
     "postprocess": {
-      "description": "hook function to be executed when markdown transformed into a vue single file component",
+      "description": "Hook function to be executed when markdown transformed into a vue single file component",
       "instanceof": "Function"
     },
     "components": {
-      "description": "components which should be resolved in markdown",
+      "description": "Components which should be resolved and registered in markdown",
       "anyOf": [
         { "type": "object" },
         { "type": "array" }
       ]
     },
     "transformers": {
-      "description": "unified (remark) transformers to apply on mdast",
-      "anyOf": [
-        { "type": "array" },
-        { "instanceof": "Function" }
-      ]
+      "description": "An array of transformers to manipulate the markdown ast",
+      "instanceof": "Array"
     },
     "watchFiles": {
-      "description": "files which should be watched and trigger hot reload",
+      "description": "Files which should be included as dependencies of the loader result",
       "instanceof": "Array"
     }
   }
