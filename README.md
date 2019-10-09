@@ -1,6 +1,13 @@
 # remark-vue-loader 📦
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/7b51f311-12ca-490b-ba21-33e471b97414/deploy-status)](https://app.netlify.com/sites/stoic-mestorf-843a7b/deploys)
+<p align="left">
+    <a href="https://www.npmjs.com/package/remark-vue-loader" alt="NPM Version">
+      <img src="https://img.shields.io/npm/v/remark-vue-loader?style=flat" />
+    </a>
+    <a href="https://app.netlify.com/sites/stoic-mestorf-843a7b/deploys" alt="Netlify Status">
+      <img src="https://api.netlify.com/api/v1/badges/7b51f311-12ca-490b-ba21-33e471b97414/deploy-status" />
+    </a>
+</p>
 
 Use your markdown as [Vue SFC](https://vue-loader.vuejs.org/spec.html), check out the [Demo](https://remark-vue-loader-demo.netlify.com/) here.
 
