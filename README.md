@@ -4,6 +4,9 @@
     <a href="https://www.npmjs.com/package/remark-vue-loader" alt="NPM Version">
       <img src="https://img.shields.io/npm/v/remark-vue-loader?style=flat" />
     </a>
+    <a href="https://github.com/Mactaivsh/remark-vue-loader/blob/master/LICENSE" alt="License">
+      <img src="https://img.shields.io/github/license/mactaivsh/remark-vue-loader?style=flat" />
+    </a>
     <a href="https://app.netlify.com/sites/stoic-mestorf-843a7b/deploys" alt="Netlify Status">
       <img src="https://api.netlify.com/api/v1/badges/7b51f311-12ca-490b-ba21-33e471b97414/deploy-status" />
     </a>
@@ -19,7 +22,7 @@ Use your markdown as [Vue SFC](https://vue-loader.vuejs.org/spec.html), check ou
 
 Also, it allows you to write your own AST transformer, and hook into the lifecycle of the loader process, make it eazy to extend.
 
-## Getting Started
+## Getting started
 
 To begin, you'll need to install `remark-vue-loader`:
 
@@ -47,6 +50,68 @@ module.export = {
 ```
 
 **Make sure to place `vue-loader` after the `remark-vue-loader` in the loader chain !**
+
+## Guides
+
+### Using components in markdown
+
+You can reference Vue components directly in markdown:
+
+``` md
+# Hello World
+
+<SomeComponent />
+```
+
+Before you do that, you need to specify where to find the component, add a `components` option in loader options:
+
+``` js
+module.export = {
+  module: {
+    rules: [
+      {
+        test: /\.md$/,
+        use: [
+          {
+            loader: 'vue-loader'
+          },
+          {
+            loader:  'remark-vue-loader',
+            options: {
+              // 
+              components: [
+                '../src/components/*.vue'
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+You can use glob pattern to find all the components.
+
+Notice that, **if you use glob pattern, all the components will be registered using Pascal Case of the component's file name**, for example:
+
+`some-component.vue -> SomeComponent`, then you can either use `<some-component></some-component>` or `<SomeComponent />` to reference the component in markdown.
+
+you can also specify the components using object format, but the `property value` must be a specific file:
+
+``` js
+components: {
+  'someComponent': '../src/components/some-component.vue'
+}
+```
+
+And if you change the content of any of theres component file, the loader result will immediately regenerate.
+
+### Write single-file component code in markdown
+
+### Write your own transformer
+
+### Hook into loader's lifecycle
 
 ## Options
 
@@ -84,5 +149,3 @@ module.export = {
 
 Give a ⭐️ if this project helped you!
 
-***
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
