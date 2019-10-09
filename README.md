@@ -39,7 +39,7 @@ module.export = {
 }
 ```
 
-**make sure to place `vue-loader` before the `remark-vue-loader` in the loader chain !**
+**Make sure to place `vue-loader` after the `remark-vue-loader` in the loader chain !**
 
 ## Options
 
