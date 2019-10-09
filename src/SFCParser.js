@@ -114,6 +114,7 @@ class SFCParser {
     // keep whats left between export default and import
     const componentScriptBlockVisitor = {
       ImportDeclaration: path => {
+        /* istanbul ignore if */
         if (Array.isArray(path.node.leadingComments) && path.node.leadingComments.length > 0) {
           delete path.node.leadingComments
         }
