@@ -1,6 +1,15 @@
 const path = require('path')
 
-const testTransformer = (ast, options) => {
+function MyTransformer (ast, options) {
+  ast.children.forEach(node => {
+    if (node.type === 'heading') {
+      const value = node.children[0].value
+      node.type = 'html'
+      node.value = `<h${node.depth} style="color: DarkViolet;">${value}</h${node.depth}>`
+      delete node.depth
+      delete node.children
+    }
+  })
   return ast
 }
 
@@ -28,7 +37,7 @@ module.exports = {
                 'MyCustomComp': './src/components/MyCustomComp.vue'
               },
               transformers: [
-                testTransformer
+                MyTransformer
               ],
               watchFiles: [],
               preprocess (source, api) {
