@@ -78,7 +78,6 @@ module.export = {
           {
             loader:  'remark-vue-loader',
             options: {
-              // 
               components: [
                 '../src/components/*.vue'
               ]
@@ -109,7 +108,79 @@ And if you change the content of any of theres component file, the loader result
 
 ### Write single-file component code in markdown
 
+There's another powerful feature that lets you write Vue single-file component code in markdown, that is the **custom code block**.
+
+`remark-vue-loader` has a builtin custom code block support for Vue SFC, for example:
+
+```` md
+This is normal markdown paragraph
+
+``` SFC
+<template>
+  <h1>{{msg}}</h1>
+</template>
+<script>
+export default {
+  data () {
+    return {
+      msg: 'Hello World'
+    }
+  }
+}
+</script>
+```
+````
+
+As you see above, the `SFC` code block will be rendered as its content, you can even write `import` statements inside the `script` block
+
+You can check out more examples in the [online demo](https://remark-vue-loader-demo.netlify.com/).
+
+What's more, you can even define your own custom blocks, it will be covered later.
+
 ### Write your own transformer
+
+One other feature, is that you can write your own transformer to manipulate the markdown ast.
+
+First, specify your trnasformer in loader options:
+
+``` js
+module.export = {
+  module: {
+    rules: [
+      {
+        test: /\.md$/,
+        use: [
+          {
+            loader: 'vue-loader'
+          },
+          {
+            loader:  'remark-vue-loader',
+            options: {
+              transformers: [
+                function MyTransformer (ast, options) {
+                  ast.children.forEach(node => {
+                    if (node.type === 'heading') {
+                      const value = node.children[0].value
+                      node.type = 'html'
+                      node.value = `<h${node.depth} style="color: DarkViolet;">${value}</h${node.depth}>`
+                      delete node.children
+                    }
+                  })
+                  return ast
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The example above defines a transformer which turns all the `heading` into HTML tag and set their color to `DarkViolet`.
+
+Transformers are just pure functions that receive ast and return new ast, yet ast is far more convenient that plain text in the aspect of manipulating.
 
 ### Hook into loader's lifecycle
 
