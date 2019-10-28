@@ -108,14 +108,14 @@ And if you change the content of any of theres component file, the loader result
 
 ### Write single-file component code in markdown
 
-There's another powerful feature that lets you write Vue single-file component code in markdown, that is the **custom code block**.
+There's another powerful feature that lets you write Vue single-file component code in markdown, that is the **custom container**, just like [markdown-it-container](https://github.com/markdown-it/markdown-it-container)
 
-`remark-vue-loader` has a builtin custom code block support for Vue SFC, for example:
+`remark-vue-loader` has a builtin custom container block support for Vue SFC, for example:
 
 ```` md
 This is normal markdown paragraph
 
-``` SFC
+::: SFC
 <template>
   <h1>{{msg}}</h1>
 </template>
@@ -128,10 +128,10 @@ export default {
   }
 }
 </script>
-```
+:::
 ````
 
-As you see above, the `SFC` code block will be rendered as its content, you can even write `import` statements inside the `script` block
+As you see above, the `SFC` container will be rendered as its content, you can even write `import` statements inside the `script` block
 
 You can check out more examples in the [online demo](https://remark-vue-loader-demo.netlify.com/).
 
