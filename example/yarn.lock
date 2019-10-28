@@ -7235,8 +7235,8 @@ remark-rehype@^5.0.0:
   dependencies:
     mdast-util-to-hast "^6.0.0"
 
-remark-vue-loader@../:
-  version "0.1.2"
+"remark-vue-loader@file:..":
+  version "0.2.0"
   dependencies:
     "@babel/generator" "^7.6.3"
     "@babel/parser" "^7.6.3"
