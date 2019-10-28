@@ -4,21 +4,17 @@ Remember to open your **[Vue devtools](https://github.com/vuejs/vue-devtools)** 
 
 <p>frontmatter: {{ $options.frontmatter }}</p>
 
-``` js
-console.log('This is a normal JavaScript code block')
-```
-
-``` SFC
+::: SFC
 <template>
   <div>
     <h3>Hello World</h3>
     <h4>This is a Static template</h4>
   </div>
 </template>
-```
+:::
 
 
-``` SFC param1="this is a param"
+::: SFC param1="this is a param"
 <script>
   import now from 'lodash-es/now'
   export default {
@@ -62,10 +58,10 @@ console.log('This is a normal JavaScript code block')
     font-weight: normal;
   }
 </style>
-```
+:::
 
 
-``` SFC componentName="user-defined-comp-name"
+::: SFC componentName="user-defined-comp-name"
 <script>
   import pick from 'lodash-es/pick'
   export default {
@@ -96,4 +92,4 @@ console.log('This is a normal JavaScript code block')
   .pick-demo
     color: DeepPink;
 </style>
-```
+:::

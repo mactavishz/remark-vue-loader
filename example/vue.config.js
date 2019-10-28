@@ -44,7 +44,7 @@ module.exports = {
                 return source
               },
               beforetransform (ast, api) {
-                api.addCodeBlock('uppercase', function (value, meta) {
+                api.addContainer('uppercase', function (value, meta) {
                   return {
                     type: 'paragraph',
                     children: [{
@@ -64,5 +64,6 @@ module.exports = {
         ]
       }]
     }
-  }
+  },
+  parallel: false
 }
