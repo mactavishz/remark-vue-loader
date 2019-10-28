@@ -11,9 +11,10 @@ const babelTemplate = require('@babel/template').default
 const babelTypes = require('@babel/types')
 const babelCodegen = require('@babel/generator').default
 const Case = require('case')
-const { SFCCodeBlockTransformer } = require('./internals')
+const { SFCContainerTransformer } = require('./internals')
 const mdastToHTML = require('./helpers/mdastToHTML')
 const findYamlFrontmatter = require('./helpers/findYamlFrontmatter')
+const containerTokenizer = require('./helpers/containerTokenizer')
 const hash = require('hash-sum')
 /**
  * @description Processor that transform markdown source text into a standard Vue SFC source code
@@ -58,7 +59,7 @@ class Processor {
       options: {
         api: this.externalApi
       },
-      handler: SFCCodeBlockTransformer
+      handler: SFCContainerTransformer
     }]
     this.transformers = this.options.transformers.map(fn => {
       return {
@@ -231,6 +232,15 @@ class Processor {
     this.source = await this.callHook('preprocess', this.source, this.externalApi)
     this.mdast = unified()
       .use(markdownParser)
+      .use(function (options) {
+        const Parser = this.Parser
+        const blockTokenizers = Parser.prototype.blockTokenizers
+        const blockMethods = Parser.prototype.blockMethods
+        const insertPoint = blockMethods.indexOf('fencedCode') + 1
+
+        blockTokenizers.container = containerTokenizer
+        blockMethods.splice(insertPoint, 0, 'container')
+      })
       .use(remarkFormatter, ['yaml'])
       .parse(this.source)
     // find and parse frontmatter

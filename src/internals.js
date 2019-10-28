@@ -1,28 +1,28 @@
 const { html } = require('mdast-builder')
-const findCodeBlocks = require('./helpers/findCodeBlocks')
+const findContainers = require('./helpers/findContainers')
 const replaceNode = require('./helpers/replaceNode')
 const hash = require('hash-sum')
 const qs = require('querystring')
 
 /**
- * @description internal SFC
- * @param {*} mdast
- * @param {*} options
+ * @description internal SFC container transformer
+ * @param {object} mdast markdown ast
+ * @param {object} options transformer options
  * @returns
  */
-async function SFCCodeBlockTransformer (mdast, options) {
+async function SFCContainerTransformer (mdast, options) {
   const { api } = options
-  const SFCCodeblocks = findCodeBlocks('SFC', mdast)
-  for (let block of SFCCodeblocks) {
-    let { value, meta } = block
+  const SFCContainers = findContainers('SFC', mdast)
+  for (let container of SFCContainers) {
+    let { value, meta } = container
     meta = qs.parse(meta)
     const componentName = meta.componentName || `SFC${hash(value)}`
     const normalizedComponentName = api.addComponent(componentName, value)
-    replaceNode(mdast, block, html(`<${normalizedComponentName} />`))
+    replaceNode(mdast, container, html(`<${normalizedComponentName} />`))
   }
   return mdast
 }
 
 module.exports = {
-  SFCCodeBlockTransformer
+  SFCContainerTransformer
 }

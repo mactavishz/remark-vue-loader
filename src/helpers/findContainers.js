@@ -7,7 +7,7 @@ const selectAll = require('unist-util-select').selectAll
  * @returns
  */
 function findCodeBlock (name, tree) {
-  return selectAll(`code`, tree).filter(node => node && node.lang === name)
+  return selectAll(`container`, tree).filter(node => node && node.name === name)
 }
 
 module.exports = findCodeBlock

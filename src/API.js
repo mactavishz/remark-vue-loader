@@ -1,7 +1,7 @@
 const SFCParser = require('./SFCParser')
 const babelTypes = require('@babel/types')
 const assertMdast = require('mdast-util-assert')
-const findCodeBlocks = require('./helpers/findCodeBlocks')
+const findContainers = require('./helpers/findContainers')
 const replaceNode = require('./helpers/replaceNode')
 
 /**
@@ -57,18 +57,18 @@ class ExternalAPI {
   }
 
   /**
-   * @description add custom code block for markdown, will replace the specific block with new ast, it internally adds a transformer function
-   * @param {string} name custom code block name
+   * @description add custom container for markdown, it will replace the specific content with ast nodes, it internally adds a transformer function
+   * @param {string} name custom container name
    * @param {function} handler handler to transform markdown ast
    * @memberof ExternalAPI
    */
-  addCodeBlock (name, handler) {
-    // add code blocks after ast transformation is meaningless
+  addContainer (name, handler) {
+    // add container after ast transformation is meaningless
     if (this.processor.currentHook === 'aftertransform') return
     const options = { name }
-    this.processor.unshiftTransformer('parseCodeBlock', options, function findAndReplaceBlock (mdast) {
-      const blocks = findCodeBlocks(name, mdast)
-      blocks.forEach(node => {
+    this.processor.unshiftTransformer('parseContainers', options, function findAndReplaceBlock (mdast) {
+      const containers = findContainers(name, mdast)
+      containers.forEach(node => {
         const { value, meta } = node
         const newNode = handler(value, meta)
         assertMdast(newNode)
