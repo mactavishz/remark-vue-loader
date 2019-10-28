@@ -8,11 +8,11 @@
     "filename": "registered.md"
   },
   {
-    "name": "Markdown With SFC container",
+    "name": "Markdown With SFC Container",
     "filename": "container.md"
   },
   {
-    "name": "Markdown With Custom Code Block",
+    "name": "Markdown With Custom Container",
     "filename": "external-api.md"
   }
 ]
