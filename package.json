@@ -50,7 +50,7 @@
     "schema-utils": "^2.1.0",
     "unified": "^8.4.1",
     "unist-util-is": "^4.0.0",
-    "unist-util-select": "^2.0.2",
+    "unist-util-select": "^3.0.0",
     "vue-template-compiler": "^2.6.10"
   },
   "devDependencies": {
