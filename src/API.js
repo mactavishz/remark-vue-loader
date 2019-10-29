@@ -1,8 +1,11 @@
 const SFCParser = require('./SFCParser')
 const babelTypes = require('@babel/types')
+const babelTemplate = require('@babel/template')
 const assertMdast = require('mdast-util-assert')
 const findContainers = require('./helpers/findContainers')
 const replaceNode = require('./helpers/replaceNode')
+const Case = require('case')
+const path = require('path')
 
 /**
  * @description External API for processor hooks
@@ -23,13 +26,13 @@ class ExternalAPI {
   }
 
   /**
-   * @description add new child component to markdown (transformed) component
+   * @description inject new child component to markdown component using source code
    * @param {*} componentName
    * @param {*} code
-   * @returns
+   * @returns {string} pascal-case component name
    * @memberof ExternalAPI
    */
-  addComponent (componentName, code) {
+  injectComponent (componentName, code) {
     const {
       normalizedComponentName,
       componentDeclaration,
@@ -44,6 +47,26 @@ class ExternalAPI {
       )
     )
     this.processor.addStyleBlocks(styles)
+    return normalizedComponentName
+  }
+
+  /**
+   * @param {string} name component name
+   * @param {string} from valid import module name, could be a file path or module name
+   * @returns {string} pascal-case component name
+   * @memberof ExternalAPI
+   */
+  importComponent (name, from) {
+    const normalizedComponentName = Case.pascal(name)
+    const loaderContext = this.processor.loader.context
+    if (!path.isAbsolute(from)) from = path.resolve(loaderContext, from)
+    const relativePath = path.relative(loaderContext, from)
+    this.processor.addImportDeclaration(babelTemplate.statement(`import ${normalizedComponentName} from '${relativePath}'`)())
+    this.processor.addComponentObjectProperty(
+      babelTypes.objectProperty(
+        babelTypes.identifier(normalizedComponentName), babelTypes.identifier(normalizedComponentName)
+      )
+    )
     return normalizedComponentName
   }
 

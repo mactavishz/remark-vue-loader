@@ -14,10 +14,10 @@ async function SFCContainerTransformer (mdast, options) {
   const { api } = options
   const SFCContainers = findContainers('SFC', mdast)
   for (let container of SFCContainers) {
-    let { value, meta } = container
+    let { value: code, meta } = container
     meta = qs.parse(meta)
-    const componentName = meta.componentName || `SFC${hash(value)}`
-    const normalizedComponentName = api.addComponent(componentName, value)
+    const componentName = meta.componentName || `SFC${hash(code)}`
+    const normalizedComponentName = api.injectComponent(componentName, code)
     replaceNode(mdast, container, html(`<${normalizedComponentName} />`))
   }
   return mdast
