@@ -1,5 +1,16 @@
 # Changelog
 
+<a name="0.3.0"></a>
+## 0.3.0(2019-10-29)
+
+### Features
+
+* add new loader hooks api - `importComponent`
+
+#### BREAKING CHANGES
+
+* rename `api.addComponent` to  `api.injectComponent` in loader options
+
 <a name="0.2.0"></a>
 ## 0.2.0(2019-10-28)
 
