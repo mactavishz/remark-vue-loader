@@ -184,6 +184,16 @@ Transformers are just pure functions that receive ast and return new ast, yet as
 
 ### Hook into loader's lifecycle
 
+There are different stages throughout the lifecycle of loader's process, which are `preprocess`, `beforetransform`, `aftertransform`, `postprocess`:
+
+<p align="center">
+  <img src="./lifecycle.png" alt="remark-vue-loader lifecycle" style="width: 350px;">
+</p>
+
+You can hook into theres different stages by providing lifecycle methods in loader options, and leverage your own functionality to process the ast or raw sources.
+
+You can find details about these functions in later chapters.
+
 ## Options
 
 | Name                                      | Type            | Default              | Description                                                                             |
@@ -200,7 +210,15 @@ Transformers are just pure functions that receive ast and return new ast, yet as
 
 ### `context`
 
+Type: `String` Default: [loader.rootContext](https://webpack.js.org/api/loaders/#thisrootcontext)
+
+`context` is the base directory of your modules, it will be used as a base path for resolving components and watch files.
+
 ### `cache`
+
+Type: `Boolean` Default: `true`
+
+Whether loader result is cacheable, we strongly recommend setting it to `true`
 
 ### `preprocess`
 
