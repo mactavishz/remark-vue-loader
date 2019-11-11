@@ -187,7 +187,7 @@ Transformers are just pure functions that receive ast and return new ast, yet as
 There are different stages throughout the lifecycle of loader's process, which are `preprocess`, `beforetransform`, `aftertransform`, `postprocess`:
 
 <p align="center">
-  <img src="./lifecycle.png" alt="remark-vue-loader lifecycle" style="width: 350px;">
+  <img src="./lifecycle.png" alt="remark-vue-loader lifecycle" width="350">
 </p>
 
 You can hook into theres different stages by providing lifecycle methods in loader options, and leverage your own functionality to process the ast or raw sources.
