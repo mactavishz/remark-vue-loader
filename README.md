@@ -192,6 +192,9 @@ There are different stages throughout the lifecycle of loader's process, which a
 
 You can hook into theres different stages by providing lifecycle methods in loader options, and leverage your own functionality to process the ast or raw sources.
 
+There is also an `api` for you to use during some of the lifecycle which provide some convenient functionalities like adding 
+components, add containers etc.
+
 You can find details about these functions in later chapters.
 
 ## Options
@@ -220,21 +223,66 @@ Type: `Boolean` Default: `true`
 
 Whether loader result is cacheable, we strongly recommend setting it to `true`
 
+### `transformers`
+
+Type: `Array` Default: `[]`
+
+You can define sets of functions in `transformers`, the member of `transformers` must be a function.
+
+#### `transformer function`
+
+Type: `Function` Arguments: `ast`
+
+Transformer function are just pure function that recieve the ast object, and **must** return a new ast object.
+
+Note: **all newly returned ast must comply the [Mdast format](https://github.com/syntax-tree/mdast)**
+
 ### `preprocess`
+
+Type: `Function` Default: `value => value` Arguments: `content`
+
+Handling raw markdown content before any transformation applies.
+
+Return value will be used for further processing.
 
 ### `beforetransform`
 
+Type: `Function` Default: `(ast, api) => {}` Arguments: `(ast, api)`
+
+Handling markdown ast before any ast transformers apply to the markdown ast.
+
+> You don't need to return ast explicitly, just manipulate the ast object directly.
+
 ### `aftertransform`
+
+Type: `Function` Default: `(ast, api) => {}` Arguments: `(ast, api)`
+
+Handling markdown ast after all the ast transformers were applied to the markdown ast. Also, using `api.addContainer` is meaningless in this phase, **becauce container handler get evaluated along with those transformers**.
+
+> You don't need to return ast explicitly, just manipulate the ast object directly.
 
 ### `postprocess`
 
+Type: `Function` Default: `sfc => sfc` Arguments: `sfc`
+
+In this phase, the original markdown content has transformed into `Vue SFC`. You must explicitly return a vaild Vue SFC code if you desire to using this hook function.
+
 ### `components`
 
-### `transformers`
+Type: `Array|Object` Default: `[]`
 
 ### `watchFiles`
 
-## Contribute
+Type: `Array` Default: `[]`
 
-Give a ⭐️ if this project helped you!
+Array of glob patterns. Files that match these glob patterns will be added as dependencies of loader result, changes of these files will cause loader to re-process the content.
 
+If you specify relative path, it will be resolved from `options.context`.
+
+## Contributing
+
+Give a ⭐️ if this project helped you! PR are welcomed.
+
+## License
+
+[MIT](https://github.com/Mactaivsh/remark-vue-loader/blob/master/LICENSE)
