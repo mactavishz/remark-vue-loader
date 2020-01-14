@@ -1,5 +1,12 @@
 # Changelog
 
+<a name="0.3.1"></a>
+## 0.3.1(2020-01-14)
+
+### Chore
+
+* update dependencies
+
 <a name="0.3.0"></a>
 ## 0.3.0(2019-10-29)
 
