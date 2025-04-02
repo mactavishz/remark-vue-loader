@@ -12,7 +12,7 @@
     </a>
 </p>
 
-Use your markdown as [Vue SFC](https://vue-loader.vuejs.org/spec.html), check out the [Demo](https://remark-vue-loader-demo.netlify.com/) here.
+Use your markdown as [Vue SFC](https://vue-loader.vuejs.org/spec.html), check out the [Demo](https://remark-vue-loader-demo.netlify.app/) here.
 
 ## Intro
 
