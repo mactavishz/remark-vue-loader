@@ -36,7 +36,7 @@
     "case": "^1.6.2",
     "debug": "^4.1.1",
     "globby": "^10.0.1",
-    "handlebars": "^4.4.3",
+    "handlebars": "^4.7.7",
     "hash-sum": "^2.0.0",
     "js-yaml": "^3.13.1",
     "loader-utils": "^1.2.3",
